@@ -22,17 +22,19 @@ exports.getPlayers = async function(query, page, limit) {
 
 exports.updatePlayer = async function(player) {
     var rank = player.Rank;
+    console.log(player);
 
     try {
-        var oldPlayer = await Player.find(obj => obj.Rank == rank);
+        var oldPlayer = await Player.findById(rank);
     } catch (e) {
         throw Error("Error occurred while finding the player");
     }
 
+    console.log(oldPlayer);
     if (!oldPlayer)
         return false;
-    
-    console.log(oldPlayer);
+        
+    console.log(player.PickTaken);
 
     oldPlayer.PickTaken = player.PickTaken;
 
@@ -42,6 +44,6 @@ exports.updatePlayer = async function(player) {
         var savedPlayer = await oldPlayer.save();
         return savedPlayer;
     } catch (e) {
-        throw Error("Error occurred while updating the player");
+        throw Error("Error occurred while updating the player: " + e.message);
     }
 }

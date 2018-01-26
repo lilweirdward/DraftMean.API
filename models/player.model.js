@@ -15,7 +15,7 @@ var PlayerSchema = new mongoose.Schema({
     AvgRank: Number,
     StdDev: Number,
     ADP: Number,
-    IsDrafted: Boolean,
+    // IsDrafted: Boolean,
     PickTaken: Number
 }, {
     collection: 'Player'

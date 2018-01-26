@@ -22,19 +22,16 @@ exports.getPlayers = async function(req, res, next) {
 }
 
 exports.updatePlayer = async function(req, res, next) {
-    if (!req.body._id)
+    if (!req.body.Rank)
         return res.status(400).json({
             status: 400,
             message: "ID/Rank must be present"
         });
     
-    var id = req.body._id;
+    var id = req.body.Rank;
     console.log(req.body);
 
-    var player = {
-        _id: id,
-        pickTaken: req.body.PickTaken
-    };
+    var player = req.body;
 
     try {
         var updatedPlayer = await PlayerService.updatePlayer(player);
