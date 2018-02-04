@@ -29,7 +29,7 @@ if (process.env.DB_USER && process.env.DB_PASS) {
 
 var mongoose = require('mongoose');
 mongoose.Promise = bluebird;
-// mongoose.connect('mongodb://127.0.0.1:27017/draftmean', { useMongoClient: true }).then(
+
 mongoose.connect(connectString)
 .then(
   ()=> { console.log('Successfully connected to Mongodb Database at URL : mongodb://draftmeancluster.mongodb.net:27017/draftmean')}
