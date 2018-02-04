@@ -13,12 +13,28 @@ var app = express();
 
 var bluebird = require('bluebird');
 
+require('dotenv').config();
+var connectString = "mongodb://";
+console.log("DB_USER: " + process.env.DB_USER);
+console.log("DB_PASS: " + process.env.DB_PASS);
+if (process.env.DB_USER && process.env.DB_PASS) {
+  connectString = connectString + process.env.DB_USER + ":" + process.env.DB_PASS
+                    + `@draftmeancluster-shard-00-00-hu7p6.mongodb.net:27017,
+                        draftmeancluster-shard-00-01-hu7p6.mongodb.net:27017,
+                        draftmeancluster-shard-00-02-hu7p6.mongodb.net:27017
+                        /draftmean?ssl=true&replicaSet=DraftMeanCluster-shard-0&authSource=admin`
+} else {
+  connectString = connectString + "127.0.0.1:27017/draftmean";
+}
+
 var mongoose = require('mongoose');
 mongoose.Promise = bluebird;
-mongoose.connect('mongodb://127.0.0.1:27017/draftmean', { useMongoClient: true }).then(
-  ()=> { console.log('Successfully connected to Mongodb Database at URL : mongodb://127.0.0.1:27017/draftmean')}
+// mongoose.connect('mongodb://127.0.0.1:27017/draftmean', { useMongoClient: true }).then(
+mongoose.connect(connectString, { useMongoClient: true })
+.then(
+  ()=> { console.log('Successfully connected to Mongodb Database at URL : mongodb://draftmeancluster.mongodb.net:27017/draftmean')}
 ).catch(
-  ()=> { console.log('Error connecting to Mongodb Database at URL : mongodb://127.0.0.1:27017/draftmean')}
+  ()=> { console.log('Error connecting to Mongodb Database at URL : mongodb://draftmeancluster.mongodb.net:27017/draftmean')}
 );
 
 // catch 404 and forward to error handler
