@@ -4,7 +4,9 @@ _this = this;
 
 exports.getPlayers = async function(req, res, next) {
     var page = req.query.page ? req.query.page : 1;
-    var limit = req.query.limit ? req.query.limit : 30;
+    var limit = req.query.limit ? Number(req.query.limit) : 30;
+    console.log(limit);
+    console.log(typeof limit);
 
     try {
         var players = await PlayerService.getPlayers({}, page, limit);
@@ -24,11 +26,6 @@ exports.getPlayers = async function(req, res, next) {
 exports.updatePlayer = async function(io, Player) {
     var result;
     
-    // if (!req.body.Rank)
-    //     return res.status(400).json({
-    //         status: 400,
-    //         message: "ID/Rank must be present"
-    //     });
     if (!Player.Rank) {
         result = {
             'success': false,
@@ -37,28 +34,9 @@ exports.updatePlayer = async function(io, Player) {
         };
         io.emit('PlayerUpdated', result);
     }
-    
-    // var id = req.body.Rank;
-    // console.log(req.body);
-
-    // var player = req.body;
 
     var id = Player.Rank;
     console.log(Player);
-
-    // try {
-    //     var updatedPlayer = await PlayerService.updatePlayer(player);
-    //     return res.status(200).json({
-    //         status: 200,
-    //         data: updatedPlayer,
-    //         message: "Successfully updated player"
-    //     });
-    // } catch (e) {
-    //     return res.status(400).json({
-    //         status: 400,
-    //         message: e.message
-    //     });
-    // }
 
     try {
         var updatedPlayer = await PlayerService.updatePlayer(Player);

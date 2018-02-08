@@ -1,19 +1,24 @@
+/*
+ * Main requires
+ */
 var express = require('express');
-// var path = require('path');
-// var favicon = require('serve-favicon');
 var logger = require('morgan');
+require('dotenv').config();
 var cookieParser = require('cookie-parser');
 var bodyParser = require('body-parser');
-
-// var index = require('./routes/index');
-// var users = require('./routes/users');
-var api = require('./routes/api.route');
+var bluebird = require('bluebird');
 
 var app = express();
 
-var bluebird = require('bluebird');
+// Get environment
+var env = process.env.ENV;
+console.log("ENV: " + env);
 
-require('dotenv').config();
+
+
+/*
+ * Connect to Mongo
+ */
 var connectString = "mongodb://";
 console.log("DB_USER: " + process.env.DB_USER);
 console.log("DB_PASS: " + process.env.DB_PASS);
@@ -23,61 +28,70 @@ if (process.env.DB_USER && process.env.DB_PASS) {
                         draftmeancluster-shard-00-01-hu7p6.mongodb.net:27017,
                         draftmeancluster-shard-00-02-hu7p6.mongodb.net:27017
                         /draftmean?ssl=true&replicaSet=DraftMeanCluster-shard-0&authSource=admin`;
-} else {
+} else if (env == "dev") {
   connectString = connectString + "127.0.0.1:27017/draftmean";
+} else {
+  console.log('DB_USER or DB_PASS not set in PROD env');
 }
 
+// Connect Mongoose to MongoDB
 var mongoose = require('mongoose');
 mongoose.Promise = bluebird;
 
 mongoose.connect(connectString)
 .then(
-  ()=> { console.log('Successfully connected to Mongodb Database at URL : mongodb://draftmeancluster.mongodb.net:27017/draftmean')}
+  ()=> { console.log('Successfully connected to Mongodb Database at URL: mongodb://draftmeancluster.mongodb.net:27017/draftmean')}
 ).catch(
-  ()=> { console.log('Error connecting to Mongodb Database at URL : mongodb://draftmeancluster.mongodb.net:27017/draftmean')}
+  ()=> { console.log('Error connecting to Mongodb Database at URL: mongodb://draftmeancluster.mongodb.net:27017/draftmean')}
 );
 
-// catch 404 and forward to error handler
+
+
+/*
+ * Set up headers and error handlers
+ */
+// Headers
 app.use(function(req, res, next) {
-  // res.header("Access-Control-Allow-Origin", "http://localhost:4200");
-  res.header("Access-Control-Allow-Origin", "http://www.zach-woodward.com");
+  if (env == "dev")
+    res.header("Access-Control-Allow-Origin", "http://localhost:4200");
+  else
+    res.header("Access-Control-Allow-Origin", "http://www.zach-woodward.com");
   res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");
   res.header("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS");
   next();
 });
 
-// view engine setup
-// app.set('views', path.join(__dirname, 'views'));
-// app.set('view engine', 'ejs');
 
-// uncomment after placing your favicon in /public
-//app.use(favicon(path.join(__dirname, 'public', 'favicon.ico')));
-app.use(logger('dev'));
+
+/*
+ * Routes and other usings
+ */
+var api = require('./routes/api.route');
+app.use('/api', api);
+
+app.use(logger(env));
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(cookieParser());
-// app.use(express.static(path.join(__dirname, 'public')));
 
-// app.use('/', index);
-// app.use('/users', users);
-app.use('/api', api);
-
-// catch 404 and forward to error handler
+// Error handlers
 app.use(function(req, res, next) {
   var err = new Error('Not Found');
   err.status = 404;
   next(err);
 });
 
-// error handler
 app.use(function(err, req, res, next) {
-  // set locals, only providing error in development
   res.locals.message = err.message;
   res.locals.error = req.app.get('env') === 'development' ? err : {};
 
-  // render the error page
   res.status(err.status || 500);
   res.render('error');
 });
 
+
+
+/*
+ * Export app
+ */
 module.exports = app;
