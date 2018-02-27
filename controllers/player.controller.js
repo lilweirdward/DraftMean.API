@@ -5,8 +5,6 @@ _this = this;
 exports.getPlayers = async function(req, res, next) {
     var page = req.query.page ? req.query.page : 1;
     var limit = req.query.limit ? Number(req.query.limit) : 30;
-    console.log(limit);
-    console.log(typeof limit);
 
     try {
         var players = await PlayerService.getPlayers({}, page, limit);
