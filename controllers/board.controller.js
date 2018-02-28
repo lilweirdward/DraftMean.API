@@ -5,7 +5,7 @@ exports.getBoard = async function(req, res, next) {
 
     if (id) {
         try {
-            var board = BoardService.getBoard(id);
+            var board = await BoardService.getBoard(id);
             return res.status(200).json({
                 status: 200,
                 data: board,
@@ -26,10 +26,14 @@ exports.getBoard = async function(req, res, next) {
 }
 
 exports.createBoard = async function(req, res, next) {
+    console.log('in board.controller createBoard');
+    // console.log('board.controller createBoard.req: ' + req.body);
     var board = {
         name: req.body.name,
         teams: req.body.teams
     }
+
+    console.log('board.controller createBoard.board: ' + board);
 
     try {
         var createdBoard = await BoardService.createBoard(board);
@@ -76,3 +80,18 @@ exports.updateBoard = async function(req, res, next) {
         });
     }
 }
+
+// {
+// 	"body": {
+// 		"name": "OFFFFL Draft Board",
+// 		"teams": [
+// 			{ id: 1, name: "Seth Payne" }, 
+// 			{ id: 2, name: "Chris Collier" }, 
+// 			{ id: 3, name: "Andy Woodward" }, 
+// 			{ id: 4, name: "Curt Collier" }, 
+// 			{ id: 5, name: "Steve Sweeden" }, 
+// 			{ id: 6, name: "Zach Woodward" }, 
+// 			{ id: 7, name: "Danielle Woodward" }
+// 		]
+// 	}
+// }

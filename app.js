@@ -66,13 +66,13 @@ app.use(function(req, res, next) {
 /*
  * Routes and other usings
  */
+app.use(bodyParser.urlencoded({ extended: false }));
+app.use(bodyParser.json());
+app.use(logger(env));
+app.use(cookieParser());
+
 var api = require('./routes/api.route');
 app.use('/api', api);
-
-app.use(logger(env));
-app.use(bodyParser.json());
-app.use(bodyParser.urlencoded({ extended: false }));
-app.use(cookieParser());
 
 // Error handlers
 app.use(function(req, res, next) {

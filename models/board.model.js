@@ -1,10 +1,10 @@
 var mongoose = require('mongoose');
 
 var BoardSchema = new mongoose.Schema({
-    _id: {
-        type: mongoose.SchemaTypes.ObjectId,
-        alias: 'id'
-    },
+    // _id: {
+    //     type: mongoose.SchemaTypes.ObjectId,
+    //     alias: 'id'
+    // },
     name: String,
     dateCreated: Date,
     teams: [

@@ -2,18 +2,22 @@ var Board = require('../models/board.model');
 
 exports.getBoard = async function(id) {
     try {
-        return Board.findById(id);
+        var board = await Board.findById(id);
+        return board;
     } catch (e) {
         throw Error('Error while finding Board: ' + e);
     }
 }
 
 exports.createBoard = async function(board) {
+    console.log('board.service createBoard.board: ' + board);
     var newBoard = new Board({
         name: board.name,
         dateCreated: new Date(),
         teams: board.teams
     });
+
+    console.log('board.service createBoard.newBoard: ' + newBoard);
 
     try {
         var savedBoard = newBoard.save();
