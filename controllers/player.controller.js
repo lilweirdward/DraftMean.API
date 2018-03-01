@@ -6,17 +6,26 @@ exports.getPlayers = async function(req, res, next) {
     var page = req.query.page ? req.query.page : 1;
     var limit = req.query.limit ? Number(req.query.limit) : 30;
 
-    try {
-        var players = await PlayerService.getPlayers({}, page, limit);
-        return res.status(200).json({
-            status: 200,
-            data: players,
-            message: "Successfully received players"
-        });
-    } catch (e) {
+    var boardId = req.params.boardId;
+
+    if (boardId) {
+        try {
+            var players = await PlayerService.getPlayers({ "BoardId": boardId }, page, limit);
+            return res.status(200).json({
+                status: 200,
+                data: players,
+                message: "Successfully received players"
+            });
+        } catch (e) {
+            return res.status(400).json({
+                status: 400,
+                message: e.message
+            });
+        }
+    } else {
         return res.status(400).json({
             status: 400,
-            message: e.message
+            message: 'Please provide a Board ID in the request parameter.'
         });
     }
 }

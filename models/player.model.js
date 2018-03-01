@@ -2,10 +2,7 @@ var mongoose = require('mongoose');
 var mongoosePaginate = require('mongoose-paginate');
 
 var PlayerSchema = new mongoose.Schema({
-    _id: {
-        type: Number,
-        alias: 'Rank'
-    },
+    Rank: Number,
     PlayerName: String,
     Team: String,
     Position: String,
@@ -16,9 +13,10 @@ var PlayerSchema = new mongoose.Schema({
     StdDev: Number,
     ADP: Number,
     // IsDrafted: Boolean,
-    PickTaken: Number
+    PickTaken: Number,
+    BoardId: String
 }, {
-    collection: 'Player'
+    collection: 'players'
 });
 
 PlayerSchema.set('toJSON', {

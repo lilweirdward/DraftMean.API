@@ -12,7 +12,7 @@ exports.getPlayers = async function(query, page, limit) {
         var players = await Player.paginate(query, {
             page: page,
             limit: limit,
-            sort: { "_id": 1 }
+            sort: { "Rank": 1 }
         });
         return players;
     } catch (e) {
@@ -22,10 +22,11 @@ exports.getPlayers = async function(query, page, limit) {
 
 exports.updatePlayer = async function(player) {
     var rank = player.Rank;
+    var boardId = player.BoardId;
     console.log(player);
 
     try {
-        var oldPlayer = await Player.findById(rank);
+        var oldPlayer = await Player.findOne({ "Rank": rank.toString(), "BoardId": boardId });
     } catch (e) {
         throw Error("Error occurred while finding the player");
     }
