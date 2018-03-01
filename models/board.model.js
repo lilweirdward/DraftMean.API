@@ -1,10 +1,6 @@
 var mongoose = require('mongoose');
 
 var BoardSchema = new mongoose.Schema({
-    // _id: {
-    //     type: mongoose.SchemaTypes.ObjectId,
-    //     alias: 'id'
-    // },
     name: String,
     dateCreated: Date,
     teams: [
@@ -13,6 +9,10 @@ var BoardSchema = new mongoose.Schema({
             name: String
         }
     ]
+});
+
+BoardSchema.virtual('id').get(function() {
+    return Buffer.from(this._id.toString(), 'hex').toString('base64');
 });
 
 BoardSchema.set('toJSON', {

@@ -41,10 +41,7 @@ exports.updateBoard = async function(board) {
         console.log(oldBoard);
 
         oldBoard.name = board.name;
-        // oldBoard.dateCreated = board.dateCreated;
-        for (var i = 0; i < board.teams.length(); i++) {
-            oldBoard.teams[i] = board.teams[i];
-        }
+        oldBoard.teams = board.teams;
 
         console.log(oldBoard);
 

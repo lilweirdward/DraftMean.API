@@ -1,11 +1,13 @@
 var BoardService = require('../services/board.service');
 
 exports.getBoard = async function(req, res, next) {
-    var id = req.query.id;
+    var id = req.params.id;
 
     if (id) {
         try {
-            var board = await BoardService.getBoard(id);
+            var hexId = Buffer.from(id, 'base64').toString('hex');
+
+            var board = await BoardService.getBoard(hexId);
             return res.status(200).json({
                 status: 200,
                 data: board,
@@ -51,11 +53,13 @@ exports.createBoard = async function(req, res, next) {
 }
 
 exports.updateBoard = async function(req, res, next) {
-    if (req.body.id || req.body._id) {
-        var id = req.body.id ? req.body.id : req.body._id;
+    var id = req.body.id;
+
+    if (id) {
+        var hexId = Buffer.from(id, 'base64').toString('hex');
 
         var board = {
-            id,
+            id: hexId,
             name: req.body.name ? req.body.name : null,
             teams: req.body.teams ? req.body.teams : null
         }
@@ -76,7 +80,7 @@ exports.updateBoard = async function(req, res, next) {
     } else {
         return res.status(400).json({
             status: 400,
-            message: 'Request object must include an id or _id key'
+            message: 'Request object must include an id key'
         });
     }
 }
