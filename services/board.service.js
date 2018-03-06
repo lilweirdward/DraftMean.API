@@ -14,6 +14,7 @@ exports.createBoard = async function(board) {
     var newBoard = new Board({
         name: board.name,
         dateCreated: new Date(),
+        totalRounds: board.totalRounds,
         teams: board.teams
     });
 
@@ -41,6 +42,7 @@ exports.updateBoard = async function(board) {
         console.log(oldBoard);
 
         oldBoard.name = board.name;
+        oldBoard.totalRounds = board.totalRounds;
         oldBoard.teams = board.teams;
 
         console.log(oldBoard);

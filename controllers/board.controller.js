@@ -32,6 +32,7 @@ exports.createBoard = async function(req, res, next) {
     // console.log('board.controller createBoard.req: ' + req.body);
     var board = {
         name: req.body.name,
+        totalRounds: req.body.totalRounds,
         teams: req.body.teams
     }
 
@@ -61,6 +62,7 @@ exports.updateBoard = async function(req, res, next) {
         var board = {
             id: hexId,
             name: req.body.name ? req.body.name : null,
+            totalRounds: req.body.totalRounds ? req.body.totalRounds : null,
             teams: req.body.teams ? req.body.teams : null
         }
 

@@ -3,6 +3,7 @@ var mongoose = require('mongoose');
 var BoardSchema = new mongoose.Schema({
     name: String,
     dateCreated: Date,
+    totalRounds: Number,
     teams: [
         {
             id: Number,
