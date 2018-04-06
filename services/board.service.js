@@ -1,4 +1,6 @@
 var Board = require('../models/board.model');
+getMasterList = require('./masterPlayerList.service').getMasterList;
+addPlayer = require('./player.service').addPlayer;
 
 exports.getBoard = async function(id) {
     try {
@@ -21,7 +23,29 @@ exports.createBoard = async function(board) {
     console.log('board.service createBoard.newBoard: ' + newBoard);
 
     try {
-        var savedBoard = newBoard.save();
+        var savedBoard = await newBoard.save();
+        var masterPlayerList = await getMasterList();
+
+        masterPlayerList.forEach(player => {
+            newPlayer = {
+                Rank: player.Rank,
+                PlayerName: player.PlayerName,
+                Team: player.Team,
+                Position: player.Position,
+                ByeWeek: player.ByeWeek,
+                BestRank: player.BestRank,
+                WorstRank: player.WorstRank,
+                AvgRank: player.AvgRank,
+                StdDev: player.StdDev,
+                ADP: player.ADP,
+                // IsDrafted: player.IsDrafted,
+                PickTaken: "",
+                BoardId: savedBoard.id
+            }
+            
+            addPlayer(newPlayer);
+        });
+
         return savedBoard;
     } catch (e) {
         throw Error('Error while creating board: ' + e);
