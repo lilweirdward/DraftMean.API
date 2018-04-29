@@ -1,7 +1,7 @@
 var BoardService = require('../services/board.service');
 
 exports.getBoard = async function(req, res, next) {
-    var id = req.params.id;
+    var id = decodeURIComponent(req.params.id);
 
     if (id) {
         try {
