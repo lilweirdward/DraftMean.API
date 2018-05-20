@@ -1,0 +1,56 @@
+#!/usr/bin/env node
+
+const MongoClient = require('mongodb').MongoClient,
+    Server = require('mongodb').Server;
+
+// TODO: Pull data from CSV
+
+var url = 'mongodb://127.0.0.1:27017/draftmean';
+MongoClient.connect(url, function(err, client) {
+    if (err) throw err;
+    const db = client.db('draftmean');
+    var boardCollection = db.collection('boards');
+    var playersCollection = db.collection('players');
+
+    boardCollection.find({}).toArray(function(err, boards) {
+        var end = boards.length - 1;
+
+        boards.forEach((board, i) => {
+            var idHex = board._id.toHexString();
+            var boardId = Buffer.from(idHex, 'hex').toString('base64');
+
+            playersCollection.find({ BoardId: boardId }).toArray(function(err, players) {
+                if (err) {
+                    console.log('board ' + boardId + ' had an err: ' + err.message);
+                    if (i == end) client.close();
+                } else {
+                    if (players.length == 0) {
+                        console.log('board ' + boardId + ' has no players');
+                        // TODO: Remove these empty boards since they're not valid or usable
+                        if (i == end) client.close();
+                    } else {        
+                        playersCollection.findOne({ BoardId: boardId, PlayerName: "David Johnson" }, function(error, player) {
+                            if (error) {
+                                console.log('board ' + boardId + ' had an error: ' + error.message);
+                            } else {
+                                if (null == player) {
+                                    console.log('no error but no player');
+                                    // TODO: Add player to list for current board
+                                } else {
+                                    console.log('Current Player: ' + player.PlayerName);
+                                    console.log('BoardId: ' + player.BoardId);
+                                    console.log('Rank: ' + player.Rank);
+                                    console.log('Team: ' + player.Team);
+                                    // TODO: Update player
+                                }
+                            }
+                            if (i == end) client.close();
+                        });
+                    }
+                }
+            });
+        });
+
+        // client.close();
+    });
+});
