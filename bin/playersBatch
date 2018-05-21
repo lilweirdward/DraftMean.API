@@ -9,7 +9,6 @@ const MongoClient = require('mongodb').MongoClient,
 
 // TODO: Update file path to S3
 var csv_url = process.env.CSV_URL;
-var stream = fs.createReadStream(csv_url);
 
 var url = 'mongodb://127.0.0.1:27017/draftmean';
 MongoClient.connect(url, function(err, client) {
@@ -18,16 +17,18 @@ MongoClient.connect(url, function(err, client) {
     var boardCollection = db.collection('boards');
     var playersCollection = db.collection('players');
 
-    boardCollection.find({ _id: ObjectId.createFromHexString('5A976158B1BADE3D4E2664B7') }).toArray(function(err, boards) {
+    boardCollection.find({}).toArray(function(err, boards) {
         if (err || boards.length == 0) {
             console.log('Could not find any board(s) for query: ' 
-                + '{ _id: ObjectId.createFromHexString(\'5A976158B1BADE3D4E2664B7\') }'
+                // + '{ _id: ObjectId.createFromHexString(\'5A976158B1BADE3D4E2664B7\') }'
+                + '{}'
                 + (null == err ? '' : '\nError: ' + err));
             client.close();
         }
         var end = boards.length - 1;
 
         boards.forEach((board, i) => {
+            console.log(i);
             var idHex = board._id.toHexString();
             var boardId = Buffer.from(idHex, 'hex').toString('base64');
 
@@ -40,33 +41,29 @@ MongoClient.connect(url, function(err, client) {
                         console.log('board ' + boardId + ' has no players');
                         // TODO: Remove these empty boards since they're not valid or usable
                         if (i == end) client.close();
-                    } else {   
+                    } else {
+                        var stream = fs.createReadStream(csv_url);
                         csv.fromStream(stream, { headers: true })
                             .on("data", (data) => {
-                                // console.log(data.Overall);
-                                playersCollection.findOne({ BoardId: boardId, PlayerName: data.Overall }, function(error, player) {
-                                    if (error) {
-                                        console.log('board ' + boardId + ' had an error: ' + error.message);
-                                    } else {
-                                        if (null == player) {
-                                            console.log(data.Overall + ' does not exist in BoardId ' + boardId);
-                                            // TODO: Add player to list for current board
-                                        } else {
-                                            console.log('Current Player in BoardId ' + player.BoardId + ': ' + player.PlayerName);
-                                            // TODO: Update player
-                                        }
-                                    }
-                                });
+                                var player = players.find(p => p.PlayerName == data.Overall);
+                                if (null == player) {
+                                    console.log(data.Overall + ' does not exist in BoardId ' + boardId);
+                                    // TODO: Add player to list for current board
+                                } else {
+                                    console.log('Current Player in BoardId ' + player.BoardId + ': ' + player.PlayerName);
+                                    // TODO: Update player
+                                }
                             })
                             .on("end", () => {
                                 console.log('done');
-                                if (i == end) client.close();
+                                if (i == end) {
+                                    console.log('closing client');
+                                    client.close();
+                                }
                             });
                     }
                 }
             });
         });
-
-        // client.close();
     });
 });
