@@ -11,6 +11,15 @@ exports.getBoard = async function(id) {
     }
 }
 
+exports.getAllBoards = async function() {
+    try {
+        var allBoards = await Board.find({});
+        return allBoards;
+    } catch (e) {
+        throw Error('Error while fetching all Boards: ' + e);
+    }
+}
+
 exports.createBoard = async function(board) {
     console.log('board.service createBoard.board: ' + board);
     var newBoard = new Board({

@@ -62,3 +62,67 @@ exports.updatePlayer = async function(io, Player) {
         io.emit('PlayerUpdated', result);
     }
 }
+
+exports.editPlayer = async function(req, res, next) {
+    var player = {
+        Rank: req.body.Rank,
+        PlayerName: req.body.PlayerName,
+        Team: req.body.Team,
+        Position: req.body.Position,
+        ByeWeek: req.body.ByeWeek,
+        BestRank: req.body.BestRank,
+        WorstRank: req.body.WorstRank,
+        AvgRank: req.body.AvgRank,
+        StdDev: req.body.StdDev,
+        ADP: req.body.ADP,
+        // IsDrafted: req.body.IsDrafted,
+        PickTaken: req.body.PickTaken,
+        BoardId: req.body.BoardId
+    }
+
+    try {
+        var updatedPlayer = await PlayerService.updatePlayer(player);
+        return res.status(200).json({
+            status: 200,
+            data: updatedPlayer,
+            message: 'Successfully updated player'
+        });
+    } catch (e) {
+        return res.status(400).json({
+            status: 400,
+            message: 'Error updating player: ' + e
+        });
+    }
+}
+
+exports.addPlayer = async function(req, res, next) {
+    var player = {
+        Rank: req.body.Rank,
+        PlayerName: req.body.PlayerName,
+        Team: req.body.Team,
+        Position: req.body.Position,
+        ByeWeek: req.body.ByeWeek,
+        BestRank: req.body.BestRank,
+        WorstRank: req.body.WorstRank,
+        AvgRank: req.body.AvgRank,
+        StdDev: req.body.StdDev,
+        ADP: req.body.ADP,
+        // IsDrafted: req.body.IsDrafted,
+        PickTaken: req.body.PickTaken,
+        BoardId: req.body.BoardId
+    }
+
+    try {
+        var newPlayer = await PlayerService.addPlayer(player);
+        return res.status(200).json({
+            status: 200,
+            data: newPlayer,
+            message: 'Successfully added new player'
+        });
+    } catch (e) {
+        return res.status(400).json({
+            status: 400,
+            message: 'Error adding new player: ' + e
+        });
+    }
+}

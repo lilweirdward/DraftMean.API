@@ -17,21 +17,23 @@ MongoClient.connect(url, function(err, client) {
     var boardCollection = db.collection('boards');
     var playersCollection = db.collection('players');
 
-    boardCollection.find({}).toArray(function(err, boards) {
+    // Get all boards regardless of player status
+    boardCollection.find({ _id: ObjectId.createFromHexString('5A976158B1BADE3D4E2664B7') }).toArray(function(err, boards) {
         if (err || boards.length == 0) {
             console.log('Could not find any board(s) for query: ' 
-                // + '{ _id: ObjectId.createFromHexString(\'5A976158B1BADE3D4E2664B7\') }'
-                + '{}'
+                + '{ _id: ObjectId.createFromHexString(\'5A976158B1BADE3D4E2664B7\') }'
+                // + '{}'
                 + (null == err ? '' : '\nError: ' + err));
             client.close();
         }
-        var end = boards.length - 1;
+        var end = boards.length - 1; // Minus-1 to be zero-indexed
 
         boards.forEach((board, i) => {
             console.log(i);
             var idHex = board._id.toHexString();
             var boardId = Buffer.from(idHex, 'hex').toString('base64');
 
+            // Get all players for current boardId
             playersCollection.find({ BoardId: boardId }).toArray(function(err, players) {
                 if (err) {
                     console.log('board ' + boardId + ' had an err: ' + err.message);
@@ -42,21 +44,68 @@ MongoClient.connect(url, function(err, client) {
                         // TODO: Remove these empty boards since they're not valid or usable
                         if (i == end) client.close();
                     } else {
+                        // Open stream to read CSV of player data
+                        // This is necessary to do for every board because streams read with cursors, so
+                        // by the time the first board has enough players to hit the "end" event, the
+                        // "readable" event will be false/empty, and no more data will be returned for
+                        // that stream. Since the stream is recreated for every non-empty board, though,
+                        // the cursor will always start at the beginning and not need to be rewound.
                         var stream = fs.createReadStream(csv_url);
                         csv.fromStream(stream, { headers: true })
                             .on("data", (data) => {
                                 var player = players.find(p => p.PlayerName == data.Overall);
                                 if (null == player) {
                                     console.log(data.Overall + ' does not exist in BoardId ' + boardId);
+                                    var newPlayer = {
+                                        "Rank": parseInt(data.Rank),
+                                        "PlayerName": data.Overall,
+                                        "Team": data.Team,
+                                        "Position": data.Pos,
+                                        "ByeWeek": parseInt(data.Bye),
+                                        "BestRank": parseInt(data.Best),
+                                        "WorstRank": parseInt(data.Worst),
+                                        "AvgRank": parseInt(data.Avg),
+                                        "PickTaken": "",
+                                        "BoardId": boardId
+                                    }
+                                    playersCollection.insertOne(newPlayer, (err, response) => {
+                                        if (err) throw err;
+                                        console.log('Successfully inserted player: ' + JSON.stringify(response));
+                                    });
                                     // TODO: Add player to list for current board
                                 } else {
                                     console.log('Current Player in BoardId ' + player.BoardId + ': ' + player.PlayerName);
+                                    playersCollection.updateOne(
+                                        { BoardId: boardId, PlayerName: data.Overall },
+                                        {
+                                            $set: {
+                                                "Rank": parseInt(data.Rank),
+                                                "Team": data.Team,
+                                                "Position": data.Pos,
+                                                "ByeWeek": parseInt(data.Bye),
+                                                "BestRank": parseInt(data.Best),
+                                                "WorstRank": parseInt(data.Worst),
+                                                "AvgRank": parseInt(data.Avg),
+                                                "StdDev": 0,
+                                                "ADP": 0,
+                                                "IsDrafted": ""
+                                            }
+                                        },
+                                        (err, response) => {
+                                            if (err) {
+                                                throw err;
+                                            }
+                                            console.log('Successfully updated player: ' + JSON.stringify(response));
+                                        }
+                                    );
                                     // TODO: Update player
                                 }
                             })
                             .on("end", () => {
                                 console.log('done');
                                 if (i == end) {
+                                    // If the current board index equals the zero-indexed count of the
+                                    // boards collection, then we can safely close the client.
                                     console.log('closing client');
                                     client.close();
                                 }

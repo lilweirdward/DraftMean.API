@@ -11,8 +11,8 @@ exports.getPlayers = async function(query, page, limit) {
     try {
         var players = await Player.paginate(query, {
             page: page,
-            limit: limit,
-            sort: { "Rank": 1 }
+            limit: limit//,
+            // sort: { "Rank": 1 }
         });
         return players;
     } catch (e) {

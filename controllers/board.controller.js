@@ -27,6 +27,22 @@ exports.getBoard = async function(req, res, next) {
     }
 }
 
+exports.getAllBoards = async function(req, res, next) {
+    try {
+        var allBoards = await BoardService.getAllBoards();
+        return res.status(200).json({
+            status: 200,
+            data: allBoards,
+            message: 'All boards successfully retrieved'
+        });
+    } catch (e) {
+        return res.status(400).json({
+            status: 400,
+            message: 'All boards were not retrieved. Exception: ' + e
+        });
+    }
+}
+
 exports.createBoard = async function(req, res, next) {
     console.log('in board.controller createBoard');
     // console.log('board.controller createBoard.req: ' + req.body);
