@@ -20,7 +20,7 @@ exports.getPlayers = async function(query, page, limit) {
     }
 };
 
-exports.updatePlayer = async function(player) {
+exports.draftPlayer = async function(player) {
     var rank = player.Rank;
     var boardId = player.BoardId;
     console.log(player);
@@ -49,6 +49,51 @@ exports.updatePlayer = async function(player) {
     }
 }
 
+exports.updatePlayer = async function(player) {
+    var name = player.PlayerName;
+    var boardId = player.BoardId;
+
+    console.log('updatePlayer.NewPlayer: ' + JSON.stringify(player));
+
+    try {
+        var oldPlayer = await Player.findOne({ "PlayerName": name, "BoardId": boardId });
+    } catch (e) {
+        throw Error("Error occurred while finding the player");
+    }
+
+    console.log('updatePlayer.oldPlayer: ' + oldPlayer);
+    if (!oldPlayer)
+        return false;
+
+    try {
+        var savedPlayer;
+        await Player.findOneAndUpdate(
+            { BoardId: boardId, PlayerName: name },
+            {
+                Rank: player.Rank,
+                Team: player.Team,
+                Position: player.Position,
+                ByeWeek: player.ByeWeek,
+                BestRank: player.BestRank,
+                WorstRank: player.WorstRank,
+                AvgRank: player.AvgRank,
+                StdDev: player.StdDev,
+                ADP: player.ADP
+            },
+            (err, doc) => {
+                if (err) {
+                    throw Error("Error occurred while updating the player: " + err);
+                }
+                console.log('updatePlayer.findOneAndUpdate.doc: ' + doc);
+                savedPlayer = doc
+            }
+        );
+        return savedPlayer;
+    } catch (e) {
+        throw Error("Error occurred while updating the player: " + e.message);
+    }
+}
+
 exports.addPlayer = async function(player) {
     var newPlayer = new Player({
         Rank: player.Rank,
@@ -70,8 +115,31 @@ exports.addPlayer = async function(player) {
 
     try {
         var savedPlayer = newPlayer.save();
+        console.log(savedPlayer);
         return savedPlayer;
     } catch (e) {
         throw Error('Error while adding player: ' + e);
+    }
+}
+
+exports.deletePlayer = async function(player) {
+    var name = player.PlayerName;
+    var boardId = player.BoardId;
+
+    try {
+        var response;
+        await Player.deleteOne(
+            { PlayerName: name, BoardId: boardId },
+            (err, res) => {
+                if (err) {
+                    throw Error("Error deleting player: " + err);
+                }
+                console.log(res);
+                response = res;
+            }
+        );
+        return response;
+    } catch (e) {
+        throw Error('Error while deleting player: ' + err);
     }
 }

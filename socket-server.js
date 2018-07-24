@@ -7,7 +7,7 @@ module.exports = function(server) {
     io.on('connection', function(socket) {
         socket.on('updatePlayer', function(Player) {
             console.log('socketData: ' + JSON.stringify(Player));
-            PlayerController.updatePlayer(io, Player);
+            PlayerController.draftPlayer(io, Player);
         });
     });
 

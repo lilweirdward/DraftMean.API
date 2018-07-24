@@ -30,7 +30,7 @@ exports.getPlayers = async function(req, res, next) {
     }
 }
 
-exports.updatePlayer = async function(io, Player) {
+exports.draftPlayer = async function(io, Player) {
     var result;
     
     if (!Player.Rank) {
@@ -46,7 +46,7 @@ exports.updatePlayer = async function(io, Player) {
     console.log(Player);
 
     try {
-        var updatedPlayer = await PlayerService.updatePlayer(Player);
+        var updatedPlayer = await PlayerService.draftPlayer(Player);
         result = {
             'success': true,
             'message': 'Successfully updated player',
@@ -63,7 +63,7 @@ exports.updatePlayer = async function(io, Player) {
     }
 }
 
-exports.editPlayer = async function(req, res, next) {
+exports.updatePlayer = async function(req, res, next) {
     var player = {
         Rank: req.body.Rank,
         PlayerName: req.body.PlayerName,
@@ -123,6 +123,27 @@ exports.addPlayer = async function(req, res, next) {
         return res.status(400).json({
             status: 400,
             message: 'Error adding new player: ' + e
+        });
+    }
+}
+
+exports.deletePlayer = async function(req, res, next) {
+    var player = {
+        PlayerName: req.params.PlayerName,
+        BoardId: req.params.BoardId
+    }
+
+    try {
+        var deletedResponse = await PlayerService.deletePlayer(player);
+        return res.status(200).json({
+            status: 200,
+            data: deletedResponse,
+            message: 'Successfully deleted new player'
+        });
+    } catch (e) {
+        return res.status(400).json({
+            status: 400,
+            message: 'Error deleting player: ' + e
         });
     }
 }
