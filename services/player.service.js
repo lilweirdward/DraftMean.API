@@ -126,6 +126,8 @@ exports.deletePlayer = async function(player) {
     var name = player.PlayerName;
     var boardId = player.BoardId;
 
+    console.log('player.service.deletePlayer name: ' + name + ', boardId: ' + boardId);
+
     try {
         var response;
         await Player.deleteOne(
@@ -134,7 +136,7 @@ exports.deletePlayer = async function(player) {
                 if (err) {
                     throw Error("Error deleting player: " + err);
                 }
-                console.log(res);
+                console.log('deletePlayer.deleteOne response: ' + JSON.stringify(res));
                 response = res;
             }
         );

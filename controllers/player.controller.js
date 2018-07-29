@@ -129,8 +129,8 @@ exports.addPlayer = async function(req, res, next) {
 
 exports.deletePlayer = async function(req, res, next) {
     var player = {
-        PlayerName: req.params.PlayerName,
-        BoardId: req.params.BoardId
+        PlayerName: decodeURIComponent(req.query.PlayerName),
+        BoardId: decodeURIComponent(req.query.BoardId)
     }
 
     try {
