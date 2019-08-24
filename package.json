@@ -4,9 +4,9 @@
   "description": "",
   "main": "lib/index.js",
   "scripts": {
-    "build": "./node_modules/@babel/cli/bin/babel.js ./lib -d ./dist",
+    "build": "babel lib -d dist",
     "start": "npm run build && nodemon dist/index.js",
-    "serve": "node ./dist/index.js"
+    "serve": "node dist/index.js"
   },
   "repository": {
     "type": "git",
